@@ -77,3 +77,30 @@ body{background:#f5fbfb;color:#15313b}
 .habit-list label{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.5;color:#415f68}
 .habit-list input{accent-color:#6556d9;margin-top:3px}
 @media(max-width:500px){.focus-clock{font-size:42px}}
+
+/* Floating YouthWell help assistant */
+.yw-chat-launch{position:fixed;right:22px;bottom:22px;z-index:1000;display:flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:13px 19px;background:linear-gradient(125deg,#6254d9,#8877f4);color:#fff;font:700 13px "DM Sans",sans-serif;box-shadow:0 12px 32px #4338a44a;cursor:pointer;transition:transform .18s,box-shadow .18s}
+.yw-chat-launch:hover{transform:translateY(-2px);box-shadow:0 16px 38px #4338a455}
+.yw-chat-spark{font-size:20px}
+.yw-chat-panel{position:fixed;right:22px;bottom:82px;z-index:1001;width:min(370px,calc(100vw - 28px));height:min(520px,calc(100dvh - 125px));min-height:350px;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #dce8e9;border-radius:22px;box-shadow:0 25px 80px #0b2f3a30}
+.yw-chat-panel[hidden]{display:none}
+.yw-chat-header{display:flex;align-items:center;gap:11px;padding:16px;background:#092f39;color:#fff}
+.yw-chat-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,#6556d9,#a096ff);font-weight:800}
+.yw-chat-heading{display:grid;gap:3px;flex:1}
+.yw-chat-heading strong{font-size:13px}
+.yw-chat-heading span{font-size:11px;color:#c3dce0}
+.yw-chat-heading i{display:inline-block;width:7px;height:7px;margin-right:5px;background:#54ddb2;border-radius:50%}
+.yw-chat-close{border:0;background:transparent;color:#fff;font-size:27px;cursor:pointer;line-height:1}
+.yw-chat-messages{display:flex;flex:1;flex-direction:column;gap:10px;overflow-y:auto;padding:16px;background:linear-gradient(#f6fbfb,#fff)}
+.yw-chat-bubble{max-width:88%;padding:11px 13px;border-radius:15px;font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.yw-chat-bubble.bot{align-self:flex-start;background:#edf6f5;color:#244850;border-bottom-left-radius:5px}
+.yw-chat-bubble.user{align-self:flex-end;background:#6556d9;color:#fff;border-bottom-right-radius:5px}
+.yw-chat-bubble.waiting{opacity:.7}
+.yw-chat-form{display:flex;gap:8px;align-items:center;padding:12px;border-top:1px solid #e6eeee}
+.yw-chat-form input{min-width:0;flex:1;border:1px solid #d9e5e7;border-radius:12px;padding:12px;font:inherit;font-size:12px;outline:none}
+.yw-chat-form input:focus{border-color:#6556d9;box-shadow:0 0 0 3px #6556d91a}
+.yw-chat-form button{width:42px;height:42px;flex-shrink:0;border:0;border-radius:12px;background:#6556d9;color:white;font-size:18px;cursor:pointer}
+.yw-chat-form button:disabled{opacity:.55;cursor:wait}
+.yw-chat-privacy{padding:0 13px 12px;margin:0;color:#73878c;font-size:9px;line-height:1.5}
+.yw-chat-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:500px){.yw-chat-launch{right:14px;bottom:14px;padding:12px 15px}.yw-chat-panel{right:10px;bottom:72px;width:calc(100vw - 20px);height:min(500px,calc(100dvh - 95px))}}
