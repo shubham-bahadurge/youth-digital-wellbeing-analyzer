@@ -8,3 +8,57 @@ body{background:linear-gradient(rgba(0,30,45,.76),rgba(0,30,45,.84)),url('/stati
 .footer{border-top-color:rgba(255,255,255,.18)}
 .hero-lede,.hero-proof,.section-heading>p,.footer p{color:#d6e8ed}
 @media(max-width:800px){body{background-attachment:scroll}}
+
+/* YouthWell professional polish — responsive, accessible, image-led */
+:root{--ink:#102b35;--muted:#627983;--line:#dce8e9;--purple:#6556d9;--green:#20a884}
+html{scroll-behavior:smooth}
+body{background:#f5fbfb;color:#15313b}
+.nav{position:sticky;top:0;z-index:20;height:76px;background:rgba(7,39,49,.96);backdrop-filter:blur(16px);box-shadow:0 8px 28px #082c3618;border-bottom:1px solid #ffffff1a}
+.nav-links{color:#d0e1e5;font-size:13px}
+.nav-links a:hover{color:#8de7d4}
+.nav-cta{border-color:#6cddd0;color:#baf7ec;border-radius:999px;padding:12px 20px}
+.brand-light{color:#9f9aff}
+.hero{padding-top:66px;padding-bottom:54px;gap:42px}
+.hero h1{color:#102d37;font-size:clamp(40px,4.3vw,60px);letter-spacing:-2.8px}
+.hero-lede{color:#526c75;font-size:16px;line-height:1.85}
+.eyebrow{font-size:10px;letter-spacing:1.8px}
+.primary{background:linear-gradient(120deg,#6254d9,#8877f4);box-shadow:0 12px 28px #6556d930}
+.secondary{background:#fff;border-color:#dbe7e9}
+.button{min-height:46px;border-radius:12px;font-size:13px}
+.hero-art{min-height:430px;overflow:hidden;border:1px solid #cce9e6;border-radius:28px;background:linear-gradient(135deg,#0c6874d9,#12a9b5b3),url('/static/youthwell-background.jpg') center/cover no-repeat;box-shadow:0 26px 70px #0b66741c}
+.hero-art:after{content:"YOUTH DIGITAL WELL-BEING";position:absolute;left:22px;bottom:18px;color:#ffffffb8;font-size:9px;font-weight:800;letter-spacing:2px}
+.orb,.phone-card,.float-note{display:none}
+.stats-strip{border-color:#d3e4e6;margin-bottom:72px;padding:23px 0}
+.stats-strip div{border-color:#d3e4e6}
+.stats-strip strong{color:#6556d9}
+.stats-strip span{color:#5d7780;font-size:12px}
+.section{padding-bottom:78px}
+.section-heading h2{color:#16343d;font-size:clamp(27px,3vw,36px)}
+.section-heading>p{color:#5b747c;font-size:14px}
+.impact-card,.metric-card,.chart-card,.survey-form,.survey-aside{border-color:#dbe8e9;border-radius:20px;box-shadow:0 12px 32px #12394308}
+.impact-card{transition:transform .2s ease,box-shadow .2s ease}
+.impact-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px #12394312}
+.impact-card p{color:#5b737b}
+.tag-row span{background:#edf7f6;color:#286b70}
+.cta-band{background:linear-gradient(120deg,#0d5865,#117e88 62%,#4b65c7);border-radius:24px;box-shadow:0 24px 55px #0d68742b;padding:40px}
+.cta-band p{color:#e1f4f3;font-size:13px}
+.white{border:0}
+.steps>div{border-color:#d5e5e6}
+.steps h3{color:#173842}
+.steps p{color:#617981;line-height:1.7}
+.footer{background:#092d37;color:#e6f3f4;border-color:#ffffff18;padding-top:30px;padding-bottom:30px}
+.footer p{color:#bfd3d7}
+.footer .brand-light{color:#aaa2ff}
+.page-hero h1{color:#14333d}
+.page-hero>p{color:#617a82;font-size:14px}
+.survey-form,.survey-aside{box-shadow:0 16px 42px #0e3b430a}
+.survey-aside{background:#edf8f7}
+.field input[type=number],.field select,.field textarea{border-color:#d4e3e6;min-height:46px}
+.radio-option{border-color:#dce8e9}
+.radio-option:has(input:checked){border-color:#6556d9;background:#f4f2ff}
+.privacy-note,.interpretation{background:#eff8f7;border-color:#d9eeeb;color:#285e63}
+.metric-value{color:#173b45}
+.empty-state{border-color:#cbdcde;background:#f8fcfc}
+@media(max-width:800px){.nav{position:sticky}.hero{padding-top:40px}.hero-art{min-height:310px}.stats-strip{margin-bottom:52px}.cta-band{padding:28px}}
+@media(max-width:500px){.nav{height:66px}.hero h1,.page-hero h1{font-size:36px}.hero-art{min-height:245px;border-radius:20px}.hero-art:after{font-size:8px;left:15px;bottom:13px}.stats-strip{padding:17px 0}.cta-band{padding:24px;border-radius:18px}.footer{padding:24px 16px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.impact-card,.button{transition:none}}
