@@ -4,7 +4,7 @@ import math
 import os
 import secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
 from flask import Flask, abort, flash, jsonify, make_response, redirect, render_template, request, send_file, session, url_for
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -115,7 +115,7 @@ def get_stats():
         ).fetchall()
         last_30_days = conn.execute(
             "SELECT COUNT(*) FROM responses WHERE created_at >= ?",
-            ((datetime.now() - __import__("datetime").timedelta(days=30)).isoformat(timespec="seconds"),),
+            ((datetime.now() - timedelta(days=30)).isoformat(timespec="seconds"),),
         ).fetchone()[0]
     return {
         "total": total,
@@ -194,8 +194,32 @@ def api_stats():
     return jsonify(get_stats())
 
 
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    configured_password = os.environ.get("ADMIN_PASSWORD", "")
+    if not configured_password:
+        return render_template("admin_login.html", unavailable=True), 503
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        if secrets.compare_digest(password, configured_password):
+            session["admin_authenticated"] = True
+            flash("Admin session started.", "success")
+            return redirect(url_for("export_csv"))
+        flash("Password not recognised. Please try again.", "error")
+    return render_template("admin_login.html", unavailable=False)
+
+
+@app.route("/admin/logout", methods=["POST"])
+def admin_logout():
+    session.pop("admin_authenticated", None)
+    flash("You have been signed out.", "success")
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/export.csv")
 def export_csv():
+    if not session.get("admin_authenticated"):
+        return redirect(url_for("admin_login"))
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(["Submitted at", "Age group", "Screen time hours/day", "Study hours/day",
