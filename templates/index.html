@@ -1,4 +1,48 @@
-{% extends "base.html" %}{% block title %}YouthWell · Mobile habits, understood{% endblock %}{% block content %}
+{% extends "base.html" %}{% block title %}YouthWell · Mobile habits, understood
+<section class="section container" id="wellbeing-tools">
+  <div class="section-heading"><div><div class="eyebrow">YOUR PERSONAL TOOLKIT</div><h2>Small tools. <span class="muted">Real-life balance.</span></h2></div><p>Try these private, in-browser tools to reflect on your habits and make a small plan. Your check-in is not saved or sent to the server.</p></div>
+  <div class="impact-grid">
+    <article class="impact-card wellness-tool"><div class="impact-icon">◉</div><div class="card-label">30-SECOND CHECK-IN</div><h3>Digital balance pulse</h3><p>How balanced does your day feel right now?</p>
+      <label for="balance-range" class="tool-label">My balance: <strong id="balance-value">5/10</strong></label><input id="balance-range" type="range" min="1" max="10" value="5" class="tool-range">
+      <label for="energy-range" class="tool-label">Energy level: <strong id="energy-value">5/10</strong></label><input id="energy-range" type="range" min="1" max="10" value="5" class="tool-range">
+      <button class="button primary tool-button" type="button" id="pulse-button">Get a gentle suggestion</button><p class="tool-result" id="pulse-result" aria-live="polite">Your check-in stays on this device.</p>
+    </article>
+    <article class="impact-card wellness-tool"><div class="impact-icon">◷</div><div class="card-label">FOCUS SPRINT</div><h3>10-minute reset</h3><p>Pick one small task, put distracting apps aside, and start a short focus sprint.</p>
+      <div class="focus-clock" id="focus-clock" aria-live="polite">10:00</div><div class="focus-actions"><button class="button primary" id="focus-start" type="button">Start focus</button><button class="button secondary" id="focus-reset" type="button">Reset</button></div><p class="tool-result" id="focus-status" aria-live="polite">Ready when you are. Keep your goal small.</p>
+    </article>
+    <article class="impact-card wellness-tool"><div class="impact-icon">✦</div><div class="card-label">HABIT BUILDER</div><h3>Choose one tiny win</h3><p>Pick a practical action for today. It is a suggestion, not a score or diagnosis.</p>
+      <div class="habit-list"><label><input type="checkbox"> Keep the phone away during one study sprint</label><label><input type="checkbox"> Take a screen-free break outdoors</label><label><input type="checkbox"> Set a gentle wind-down reminder</label><label><input type="checkbox"> Message or speak to someone offline</label></div><p class="tool-result" id="habit-progress" aria-live="polite">0 of 4 intentions checked.</p>
+    </article>
+  </div>
+</section>
+<script>
+(() => {
+ const balance=document.getElementById('balance-range'), energy=document.getElementById('energy-range');
+ const balanceValue=document.getElementById('balance-value'), energyValue=document.getElementById('energy-value');
+ balance.addEventListener('input',()=>balanceValue.textContent=balance.value+'/10');
+ energy.addEventListener('input',()=>energyValue.textContent=energy.value+'/10');
+ document.getElementById('pulse-button').addEventListener('click',()=>{
+   const b=Number(balance.value), e=Number(energy.value); let message;
+   if(b<=3) message='Try one gentle boundary: silence non-essential notifications for 15 minutes.';
+   else if(e<=3) message='Consider a short pause, a drink of water, or a few minutes away from screens.';
+   else if(b>=8 && e>=7) message='Sounds like you feel steady. Notice what is working and keep it sustainable.';
+   else message='Choose one priority for the next 10 minutes, then take a short screen-free break.';
+   document.getElementById('pulse-result').textContent=message;
+ });
+ let remaining=600, interval=null;
+ const clock=document.getElementById('focus-clock'), status=document.getElementById('focus-status'), start=document.getElementById('focus-start');
+ const render=()=>{clock.textContent=String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0')};
+ start.addEventListener('click',()=>{
+   if(interval){clearInterval(interval);interval=null;start.textContent='Resume focus';status.textContent='Paused. Resume when ready.';return}
+   start.textContent='Pause';status.textContent='Focus on one task. You can pause anytime.';
+   interval=setInterval(()=>{remaining--;render();if(remaining<=0){clearInterval(interval);interval=null;start.textContent='Start again';status.textContent='Sprint complete. Take a short break before your next task.'}},1000);
+ });
+ document.getElementById('focus-reset').addEventListener('click',()=>{if(interval)clearInterval(interval);interval=null;remaining=600;render();start.textContent='Start focus';status.textContent='Timer reset. Choose one small task.'});
+ const checks=[...document.querySelectorAll('.habit-list input')], progress=document.getElementById('habit-progress');
+ checks.forEach(c=>c.addEventListener('change',()=>{const count=checks.filter(x=>x.checked).length;progress.textContent=count+' of 4 intentions checked.'}));
+})();
+</script>
+{% endblock %}{% block content %}
 <section class="hero container"><div class="hero-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> COMMUNITY ENGAGEMENT PROJECT</div><h1>Make your mobile<br>habits work <span class="gradient-text">for you.</span></h1><p class="hero-lede">A student-led study exploring how mobile phones shape learning, sleep, social connection and everyday life among young people.</p><div class="hero-actions"><a class="button primary" href="{{ url_for('survey') }}">Take the 2-minute survey →</a><a class="button secondary" href="{{ url_for('dashboard') }}">Explore insights</a></div><div class="hero-proof"><span class="proof-mark">Y W +</span><span>Real responses. Better awareness. Healthier digital habits.</span></div></div><div class="hero-art"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="phone-card"><div class="phone-top"><span>9:41</span><span>● ● ▰</span></div><div class="phone-greeting">Your digital day</div><div class="phone-date">A mindful check-in</div><div class="screen-ring"><div><strong>Balance</strong><small>starts with awareness</small></div></div><div class="mini-stat"><span class="mini-icon purple">◷</span><div><b>Screen time</b><small>Notice your patterns</small></div><span class="mini-arrow">↗</span></div><div class="mini-stat"><span class="mini-icon green">✦</span><div><b>Study focus</b><small>Make room to concentrate</small></div><span class="mini-arrow">↗</span></div><div class="phone-tip">✳ Small habits can make a difference.</div></div><div class="float-note note-top"><b>✦ Learn with intention</b><small>Use technology purposefully</small></div><div class="float-note note-bottom"><b>↗ Build awareness</b><small>One response at a time</small></div></div></section>
 <section class="stats-strip container"><div><strong>01</strong><span>Student-led research</span></div><div><strong>02</strong><span>Anonymous survey</span></div><div><strong>03</strong><span>Evidence-based insights</span></div><div><strong>04</strong><span>Practical awareness</span></div></section>
 <section class="section container"><div class="section-heading"><div><div class="eyebrow">THE BIG PICTURE</div><h2>Phones are tools.<br><span class="muted">How we use them matters.</span></h2></div><p>Mobile phones can support learning and connection, but unplanned use can also interrupt routines. This project explores both sides without judging individual students.</p></div><div class="impact-grid"><article class="impact-card"><div class="impact-icon">↗</div><div class="card-label">THE OPPORTUNITY</div><h3>Positive impact</h3><p>Learning resources, quick communication, creativity, digital skills and access to opportunities.</p><div class="tag-row"><span>Education</span><span>Connection</span><span>Creativity</span></div></article><article class="impact-card caution"><div class="impact-icon">◎</div><div class="card-label">THE CHALLENGE</div><h3>Potential downsides</h3><p>Distraction, delayed sleep, less offline activity and exposure to online pressure or misinformation.</p><div class="tag-row"><span>Focus</span><span>Sleep</span><span>Balance</span></div></article><article class="impact-card action"><div class="impact-icon">✳</div><div class="card-label">THE GOAL</div><h3>Informed choices</h3><p>Understand personal patterns and find practical ways to make technology support everyday goals.</p><div class="tag-row"><span>Awareness</span><span>Habits</span><span>Well-being</span></div></article></div></section>
