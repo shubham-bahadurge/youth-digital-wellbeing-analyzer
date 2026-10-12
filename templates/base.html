@@ -1,3 +1,32 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A student-led CEP project exploring the impact of mobile phones on youth."><title>{% block title %}YouthWell · Digital well-being{% endblock %}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
-<body><nav class="nav"><a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></a><div class="nav-links"><a href="{{ url_for('home') }}">Overview</a><a href="{{ url_for('survey') }}">Take survey</a><a href="{{ url_for('dashboard') }}">Insights</a><a href="#wellbeing-tools">Tools</a></div><a class="nav-cta" href="{{ url_for('admin_login') }}">Admin sign in ↗</a></nav><main>{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main><footer class="footer"><div class="brand"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></div><p>Community Engagement Project · Impact of Mobile Phones on Youth</p><p class="footer-note">Anonymous educational survey. Please do not share identifying or sensitive information.</p></footer></body></html>
+<body><nav class="nav"><a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></a><div class="nav-links"><a href="{{ url_for('home') }}">Overview</a><a href="{{ url_for('survey') }}">Take survey</a><a href="{{ url_for('dashboard') }}">Insights</a><a href="#wellbeing-tools">Tools</a></div><a class="nav-cta" href="{{ url_for('admin_login') }}">Admin sign in ↗</a></nav><main>{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main><footer class="footer"><div class="brand"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></div><p>Community Engagement Project · Impact of Mobile Phones on Youth</p><p class="footer-note">Anonymous educational survey. Please do not share identifying or sensitive information.</p></footer>
+<button class="yw-chat-launch" id="yw-chat-launch" type="button" aria-label="Open YouthWell help chat" aria-expanded="false"><span class="yw-chat-spark">✦</span><span>Ask YouthWell</span></button>
+<section class="yw-chat-panel" id="yw-chat-panel" aria-label="YouthWell help chat" hidden>
+ <header class="yw-chat-header"><div class="yw-chat-avatar">Y</div><div class="yw-chat-heading"><strong>YouthWell Helper</strong><span><i></i> Here to help</span></div><button class="yw-chat-close" id="yw-chat-close" type="button" aria-label="Close help chat">×</button></header>
+ <div class="yw-chat-messages" id="yw-chat-messages" aria-live="polite"><div class="yw-chat-bubble bot">Hi! 👋 I can help you use the survey, understand insights, or build healthier digital habits. What can I help with?</div></div>
+ <form class="yw-chat-form" id="yw-chat-form"><label class="yw-chat-sr" for="yw-chat-input">Your question</label><input id="yw-chat-input" name="message" maxlength="700" placeholder="Ask me anything…" autocomplete="off" required><button type="submit" aria-label="Send message">➤</button></form>
+ <p class="yw-chat-privacy">Please don’t share passwords or personal details. Educational support, not medical advice.</p>
+</section>
+<script>
+(() => {
+ const launch=document.getElementById('yw-chat-launch'), panel=document.getElementById('yw-chat-panel'), close=document.getElementById('yw-chat-close'), form=document.getElementById('yw-chat-form'), input=document.getElementById('yw-chat-input'), messages=document.getElementById('yw-chat-messages');
+ if(!launch||!panel||!form)return;
+ const open=()=>{panel.hidden=false;launch.setAttribute('aria-expanded','true');input.focus()};
+ const shut=()=>{panel.hidden=true;launch.setAttribute('aria-expanded','false');launch.focus()};
+ launch.addEventListener('click',()=>panel.hidden?open():shut());close.addEventListener('click',shut);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)shut()});
+ const bubble=(text,who)=>{const el=document.createElement('div');el.className='yw-chat-bubble '+who;el.textContent=text;messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el};
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();const message=input.value.trim();if(!message)return;
+  bubble(message,'user');input.value='';input.disabled=true;form.querySelector('button').disabled=true;
+  const waiting=bubble('Thinking…','bot waiting');
+  try{
+   const response=await fetch('/api/help-chat',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:new URLSearchParams({message})});
+   const data=await response.json();waiting.remove();bubble(data.reply||'Sorry, I could not answer that. Please try again.','bot');
+  }catch(err){waiting.remove();bubble('I’m having trouble connecting right now. Please try again in a moment.','bot')}
+  finally{input.disabled=false;form.querySelector('button').disabled=false;input.focus()}
+ });
+})();
+</script>
+</body></html>
