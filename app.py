@@ -9,6 +9,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timedelta
 from flask import Flask, abort, flash, jsonify, make_response, redirect, render_template, request, send_file, session, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -52,6 +53,13 @@ def init_db():
             primary_use TEXT NOT NULL,
             perceived_effect TEXT NOT NULL,
             notes TEXT NOT NULL DEFAULT ''
+        )""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            password_hash TEXT NOT NULL,
+            created_at TEXT NOT NULL
         )""")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
@@ -156,6 +164,77 @@ def build_insights(stats):
 def home():
     stats = get_stats()
     return render_template("index.html", stats=stats)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if session.get("user_id"):
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()[:80]
+        email = request.form.get("email", "").strip().lower()[:254]
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+        if len(name) < 2 or "@" not in email or len(password) < 8:
+            flash("Enter your name, a valid email, and a password with at least 8 characters.", "error")
+        elif password != confirm:
+            flash("The passwords do not match.", "error")
+        else:
+            try:
+                with connect_db() as conn:
+                    cursor = conn.execute(
+                        "INSERT INTO users (name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                        (name, email, generate_password_hash(password), datetime.now().isoformat(timespec="seconds")),
+                    )
+                    user_id = cursor.lastrowid
+                session.clear()
+                session["user_id"] = user_id
+                session["user_name"] = name
+                flash("Your local YouthWell account has been created.", "success")
+                return redirect(url_for("account"))
+            except sqlite3.IntegrityError:
+                flash("An account with that email already exists. Please sign in instead.", "error")
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def user_login():
+    if session.get("user_id"):
+        return redirect(url_for("account"))
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()[:254]
+        password = request.form.get("password", "")
+        with connect_db() as conn:
+            user = conn.execute("SELECT id, name, password_hash FROM users WHERE email = ?", (email,)).fetchone()
+        if user and check_password_hash(user["password_hash"], password):
+            session.clear()
+            session["user_id"] = user["id"]
+            session["user_name"] = user["name"]
+            flash("Welcome back!", "success")
+            return redirect(url_for("account"))
+        flash("Email or password is incorrect.", "error")
+    return render_template("user_login.html")
+
+
+@app.route("/account")
+def account():
+    if not session.get("user_id"):
+        flash("Please sign in to view your account.", "error")
+        return redirect(url_for("user_login"))
+    with connect_db() as conn:
+        user = conn.execute("SELECT name, email, created_at FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+    if not user:
+        session.clear()
+        return redirect(url_for("user_login"))
+    return render_template("account.html", user=user)
+
+
+@app.route("/logout", methods=["POST"])
+def user_logout():
+    session.pop("user_id", None)
+    session.pop("user_name", None)
+    flash("You have been signed out.", "success")
+    return redirect(url_for("home"))
 
 
 @app.route("/survey", methods=["GET", "POST"])
