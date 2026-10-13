@@ -234,3 +234,22 @@ input,select,textarea{background:var(--yw-ivory)!important;color:var(--yw-plum)!
 .sketch-tool-links a,.sketch-tool-links button{background:var(--yw-ivory)!important;border-color:var(--yw-plum)!important}
 .sketch-nav .nav-links{background:var(--yw-ivory)!important;border:2px solid var(--yw-plum)!important}
 ::selection{background:var(--yw-yellow);color:var(--yw-plum)}
+
+/* Final palette enforcement across every page, including survey, footer and chatbot */
+:root{--cream:#FFE5BD;--ivory:#FFF9EC;--yellow:#FFC943;--ink:#29163D}
+html,body,main{background:var(--cream)!important;color:var(--ink)!important}
+.nav,.sketch-nav,header:not(.yw-chat-header),.site-header{background:var(--cream)!important}
+.footer{background:var(--cream)!important;color:var(--ink)!important;border-top:1px solid #d8c4a5!important}
+.footer p,.footer-note{color:var(--ink)!important}
+.footer .brand,.footer .brand-light{color:var(--ink)!important}
+main .container,main .page-wrap,main .survey-layout,main .survey-main,main .content-card{background:var(--ivory)!important}
+main .card,main .panel,main .survey-card,main form,.auth-card,.form-card{background:var(--ivory)!important}
+button,.button,.btn,.nav-cta,input[type=submit],input[type=button],.yw-chat-launch,.yw-chat-form button{background:var(--yellow)!important;color:var(--ink)!important;border-color:var(--ink)!important}
+a,.brand,.brand-light,h1,h2,h3,h4,.yw-chat-heading strong{color:var(--ink)!important}
+.brand-mark,.yw-chat-avatar{background:var(--yellow)!important;color:var(--ink)!important;border-color:var(--ink)!important}
+.yw-chat-panel{background:var(--ivory)!important;border:2px solid var(--ink)!important}
+.yw-chat-header{background:var(--cream)!important;color:var(--ink)!important}
+.yw-chat-bubble.bot{background:var(--cream)!important;color:var(--ink)!important;border:1px solid #d8c4a5!important}
+.yw-chat-bubble.user{background:var(--yellow)!important;color:var(--ink)!important}
+.yw-chat-form input{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
+input,select,textarea{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
