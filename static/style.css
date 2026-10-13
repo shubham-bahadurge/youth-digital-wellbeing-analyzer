@@ -217,3 +217,20 @@ input,select,textarea{background:var(--yw-ivory)!important;color:var(--yw-plum)!
 table,th,td{border-color:var(--yw-border)!important}
 ::selection{background:var(--yw-yellow);color:var(--yw-purple)}
 @media(max-width:700px){.sketch-nav .nav-links{background:var(--yw-ivory)!important;border:2px solid var(--yw-plum)!important}.sketch-hero,.sketch-bottom{box-shadow:3px 4px 0 var(--yw-plum)!important}}
+
+/* Final restrained palette: warm cream, soft ivory, bright yellow only */
+:root{--yw-cream:#FFE5BD;--yw-ivory:#FFF9EC;--yw-yellow:#FFC943;--yw-purple:#29163D;--yw-pink:#FF2878;--yw-plum:#29163D;--yw-muted:#5f5145;--yw-border:#d8c4a5}
+html,body,body{background:var(--yw-cream)!important;color:var(--yw-plum)!important}
+header,.site-header,.navbar,.nav,.sketch-nav{background:var(--yw-cream)!important;color:var(--yw-plum)!important}
+.brand,.sketch-brand,.brand-light,h1,h2,h3,h4,.sketch-hero h1,.sketch-section-head h2,.sketch-bottom h2,.sketch-hero h1 em,.sketch-bottom h2 em,.eyebrow,.sketch-eyebrow,.sketch-step-no,.sketch-link,.sketch-tool-links a,.sketch-tool-links button{color:var(--yw-plum)!important}
+.brand-mark,button,.button,.btn,.nav-cta,input[type=submit],input[type=button]{background:var(--yw-yellow)!important;color:var(--yw-plum)!important;border:2px solid var(--yw-plum)!important;border-radius:999px!important;font-weight:800!important;box-shadow:2px 3px 0 var(--yw-plum)}
+.sketch-hero,.card,.panel,.stat-card,.dashboard-card,.survey-card,.auth-card,.form-card,.sketch-step,.sketch-survey{background:var(--yw-ivory)!important;border:2px solid var(--yw-plum)!important;border-radius:20px!important;box-shadow:3px 4px 0 var(--yw-plum)!important}
+.sketch-hero{background:var(--yw-ivory)!important}
+.sketch-eyebrow span{background:var(--yw-yellow)!important}
+.sketch-clock,.sketch-step-icon{background:var(--yw-cream)!important;color:var(--yw-plum)!important;border:1px solid var(--yw-plum)}
+.sketch-arrow{background:var(--yw-yellow)!important;color:var(--yw-plum)!important;border:1px solid var(--yw-plum)}
+.sketch-bottom{background:var(--yw-cream)!important;border:2px solid var(--yw-plum)!important;box-shadow:3px 4px 0 var(--yw-plum)}
+input,select,textarea{background:var(--yw-ivory)!important;color:var(--yw-plum)!important;border-color:var(--yw-plum)!important;border-radius:10px}
+.sketch-tool-links a,.sketch-tool-links button{background:var(--yw-ivory)!important;border-color:var(--yw-plum)!important}
+.sketch-nav .nav-links{background:var(--yw-ivory)!important;border:2px solid var(--yw-plum)!important}
+::selection{background:var(--yw-yellow);color:var(--yw-plum)}
