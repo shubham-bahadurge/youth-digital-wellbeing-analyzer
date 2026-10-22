@@ -62,12 +62,6 @@ PHONE_USES = ["Education", "Social media", "Gaming", "Communication", "Entertain
 EFFECTS = ["Mostly positive", "Mixed", "Mostly negative", "Not sure"]
 
 
-def connect_db():
-    conn = sqlite3.connect(DATABASE, timeout=10)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
 def init_db():
     if DATABASE_URL:
         with connect_db() as conn:
