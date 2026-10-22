@@ -143,7 +143,7 @@ def get_stats():
         by_use = conn.execute(
             "SELECT primary_use label, COUNT(*) value FROM responses GROUP BY primary_use ORDER BY value DESC, label"
         ).fetchall()
-        by_age = conn.execute("""SELECT age_group label, ROUND(AVG(screen_time), 1) value,
+        by_age = conn.execute("""SELECT age_group label, ROUND(AVG(screen_time)::numeric, 1) value,
             COUNT(*) count FROM responses GROUP BY age_group
             ORDER BY CASE age_group WHEN 'Under 13' THEN 1 WHEN '13–15' THEN 2
             WHEN '16–18' THEN 3 WHEN '19–24' THEN 4 ELSE 5 END""").fetchall()
