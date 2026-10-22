@@ -305,8 +305,8 @@ def survey():
                     (datetime.now().isoformat(timespec="seconds"), age, screen, study, sleep, use, effect, notes),
                 )
             session.pop("_csrf_token", None)
-            flash("Thank you! Your anonymous response has been recorded.", "success")
-            return redirect(url_for("survey"))
+            flash("Thank you! Your anonymous response has been recorded. Here is the updated community dashboard.", "success")
+            return redirect(url_for("dashboard"))
         except (ValueError, TypeError):
             flash("Please check your answers. Hours must be valid numbers from 0 to 24.", "error")
     return render_template("survey.html")
