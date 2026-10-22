@@ -233,8 +233,8 @@ def register():
                 session.clear()
                 session["user_id"] = user_id
                 session["user_name"] = name
-                flash("Your local YouthWell account has been created.", "success")
-                return redirect(url_for("account"))
+                flash("Your YouthWell account has been created. You can now take the survey.", "success")
+                return redirect(url_for("survey"))
             except Exception as exc:
                 if "unique" in str(exc).lower() or "duplicate" in str(exc).lower():
                     flash("An account with that email already exists. Please sign in instead.", "error")
@@ -286,6 +286,9 @@ def user_logout():
 
 @app.route("/survey", methods=["GET", "POST"])
 def survey():
+    if not session.get("user_id"):
+        flash("Please create an account or sign in before taking the survey.", "error")
+        return redirect(url_for("register"))
     if request.method == "POST":
         try:
             age = request.form.get("age_group", "")
