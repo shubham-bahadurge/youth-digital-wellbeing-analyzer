@@ -16,10 +16,38 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE_URL = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL") or os.environ.get("POSTGRES_PRISMA_URL")
 DATABASE = os.environ.get(
     "DATABASE_PATH",
     "/tmp/wellbeing.db" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "wellbeing.db"),
 )
+
+class PostgresConnection:
+    """Compatibility wrapper for existing SQLite-style SQL on Neon PostgreSQL."""
+    def __init__(self, url):
+        import psycopg2
+        from psycopg2.extras import DictCursor
+        self._conn = psycopg2.connect(url, sslmode="require", cursor_factory=DictCursor, connect_timeout=8)
+    def execute(self, sql, params=()):
+        cur = self._conn.cursor()
+        cur.execute(sql.replace("?", "%s"), params)
+        return cur
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            self._conn.commit() if exc_type is None else self._conn.rollback()
+        finally:
+            self._conn.close()
+        return False
+
+def connect_db():
+    if DATABASE_URL:
+        return PostgresConnection(DATABASE_URL)
+    conn = sqlite3.connect(DATABASE, timeout=10)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "local-demo-key-change-before-production")
 app.config.update(
@@ -41,29 +69,37 @@ def connect_db():
 
 
 def init_db():
+    if DATABASE_URL:
+        with connect_db() as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS responses (
+                id BIGSERIAL PRIMARY KEY, created_at TEXT NOT NULL, age_group TEXT NOT NULL,
+                screen_time DOUBLE PRECISION NOT NULL CHECK(screen_time BETWEEN 0 AND 24),
+                study_hours DOUBLE PRECISION NOT NULL CHECK(study_hours BETWEEN 0 AND 24),
+                sleep_hours DOUBLE PRECISION NOT NULL CHECK(sleep_hours BETWEEN 0 AND 24),
+                primary_use TEXT NOT NULL, perceived_effect TEXT NOT NULL, notes TEXT NOT NULL DEFAULT ''
+            )""")
+            conn.execute("""CREATE TABLE IF NOT EXISTS users (
+                id BIGSERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL, created_at TEXT NOT NULL
+            )""")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
+        return
     os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
     with connect_db() as conn:
         conn.execute("""CREATE TABLE IF NOT EXISTS responses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at TEXT NOT NULL,
-            age_group TEXT NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, age_group TEXT NOT NULL,
             screen_time REAL NOT NULL CHECK(screen_time BETWEEN 0 AND 24),
             study_hours REAL NOT NULL CHECK(study_hours BETWEEN 0 AND 24),
             sleep_hours REAL NOT NULL CHECK(sleep_hours BETWEEN 0 AND 24),
-            primary_use TEXT NOT NULL,
-            perceived_effect TEXT NOT NULL,
-            notes TEXT NOT NULL DEFAULT ''
+            primary_use TEXT NOT NULL, perceived_effect TEXT NOT NULL, notes TEXT NOT NULL DEFAULT ''
         )""")
         conn.execute("""CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-            password_hash TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL
         )""")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
-
 
 def csrf_token():
     token = session.get("_csrf_token")
@@ -182,18 +218,29 @@ def register():
         else:
             try:
                 with connect_db() as conn:
-                    cursor = conn.execute(
-                        "INSERT INTO users (name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
-                        (name, email, generate_password_hash(password), datetime.now().isoformat(timespec="seconds")),
-                    )
-                    user_id = cursor.lastrowid
+                    if DATABASE_URL:
+                        cursor = conn.execute(
+                            "INSERT INTO users (name, email, password_hash, created_at) VALUES (?, ?, ?, ?) RETURNING id",
+                            (name, email, generate_password_hash(password), datetime.now().isoformat(timespec="seconds")),
+                        )
+                        user_id = cursor.fetchone()["id"]
+                    else:
+                        cursor = conn.execute(
+                            "INSERT INTO users (name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                            (name, email, generate_password_hash(password), datetime.now().isoformat(timespec="seconds")),
+                        )
+                        user_id = cursor.lastrowid
                 session.clear()
                 session["user_id"] = user_id
                 session["user_name"] = name
                 flash("Your local YouthWell account has been created.", "success")
                 return redirect(url_for("account"))
-            except sqlite3.IntegrityError:
-                flash("An account with that email already exists. Please sign in instead.", "error")
+            except Exception as exc:
+                if "unique" in str(exc).lower() or "duplicate" in str(exc).lower():
+                    flash("An account with that email already exists. Please sign in instead.", "error")
+                else:
+                    app.logger.exception("Account registration failed")
+                    flash("Account creation is temporarily unavailable. Please try again later.", "error")
     return render_template("register.html")
 
 
@@ -365,7 +412,8 @@ def health():
         with connect_db() as conn:
             conn.execute("SELECT 1")
         return jsonify({"status": "ok", "database": "reachable"}), 200
-    except sqlite3.Error:
+    except Exception:
+        app.logger.exception("Database health check failed")
         return jsonify({"status": "error", "database": "unavailable"}), 503
 
 
