@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Your survey results · YouthWell{% endblock %}
+{% block content %}
+<section class="page-hero container">
+  <div class="eyebrow">YOUR PERSONAL REFLECTION</div>
+  <h1>Your answers, <span class="gradient-text">your next step.</span></h1>
+  <p>This feedback is based on your answers. It is educational guidance, not a diagnosis or a judgement.</p>
+</section>
+<section class="container dashboard-content">
+  <article class="chart-card" style="padding:clamp(22px,4vw,40px);margin-bottom:22px">
+    <h2>Your submitted details</h2>
+    <div class="metric-grid" style="margin-top:20px">
+      <article class="metric-card"><div class="metric-label">AGE GROUP</div><div class="metric-value" style="font-size:1.4rem">{{ response.age_group }}</div></article>
+      <article class="metric-card"><div class="metric-label">SCREEN TIME</div><div class="metric-value">{{ response.screen_time }}<small> hrs/day</small></div></article>
+      <article class="metric-card"><div class="metric-label">STUDY TIME</div><div class="metric-value">{{ response.study_hours }}<small> hrs/day</small></div></article>
+      <article class="metric-card"><div class="metric-label">SLEEP</div><div class="metric-value">{{ response.sleep_hours }}<small> hrs/night</small></div></article>
+    </div>
+    <p><b>Main phone use:</b> {{ response.primary_use }}</p>
+    <p><b>Perceived effect:</b> {{ response.perceived_effect }}</p>
+    {% if response.notes %}<p><b>Your note:</b> {{ response.notes }}</p>{% endif %}
+  </article>
+  <div class="insight-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));margin-bottom:24px">
+    <article class="insight-card"><span class="insight-symbol">✦</span><h2>Good things</h2>
+      {% if strengths %}<ul>{% for item in strengths %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Taking time to reflect is a useful first step.</p>{% endif %}
+    </article>
+    <article class="insight-card"><span class="insight-symbol">↗</span><h2>Things to improve</h2>
+      {% if improvements %}<ul>{% for item in improvements %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Keep noticing what works for you and maintain a balanced routine.</p>{% endif %}
+    </article>
+  </div>
+  <div class="dash-actions"><a class="button primary" href="{{ url_for('my_plan') }}">Build my plan</a><a class="button secondary" href="{{ url_for('survey') }}">Update my answers</a><a class="button secondary" href="{{ url_for('dashboard') }}">Community insights</a></div>
+</section>
+{% endblock %}
