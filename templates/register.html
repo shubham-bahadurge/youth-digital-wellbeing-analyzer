@@ -6,7 +6,7 @@
 <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
 <div class="field"><label for="password">Password (at least 8 characters)</label><div class="password-wrap"><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div>
 <div class="field"><label for="confirm_password">Confirm password</label><div class="password-wrap"><input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required><button class="password-toggle" type="button" data-toggle-password="confirm_password" aria-label="Show password">Show</button></div></div>
-<button class="button primary submit-button" type="submit">Create my account →</button>
+<button class="button primary submit-button" type="submit">Create my account</button>
 <p class="auth-switch">Already registered? <a class="text-link" href="{{ url_for('user_login') }}">Sign in</a></p>
 <p class="privacy-note">Passwords are stored as hashes, not plain text. This local demo does not include email verification or password recovery.</p>
 </form></section>
