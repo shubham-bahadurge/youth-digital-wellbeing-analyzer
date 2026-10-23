@@ -10,7 +10,7 @@
   <form class="survey-form tracker-form" method="post" action="{{ url_for('daily_tracker') }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <div class="form-heading"><span class="step-pill">DAILY TRACKER</span><h2>{{ 'Update your check-in' if current else 'Log your day' }}</h2><p>Use approximate hours. There are no grades or perfect scores.</p></div>
-    <div class="field"><label for="tracker_date">Date</label><input id="tracker_date" name="tracker_date" type="date" value="{{ current.tracker_date if current else today }}" max="{{ today }}" min="{{ (today|string) }}" required></div>
+    <div class="field"><label for="tracker_date">Date</label><input id="tracker_date" name="tracker_date" type="date" value="{{ current.tracker_date if current else today }}" max="{{ today }}" required></div>
     <div class="field"><label for="screen_time">Screen time (hours)</label><input id="screen_time" name="screen_time" type="number" min="0" max="24" step=".5" value="{{ current.screen_time if current else '' }}" placeholder="e.g. 4.5" required></div>
     <div class="field"><label for="study_hours">Study outside class (hours)</label><input id="study_hours" name="study_hours" type="number" min="0" max="24" step=".5" value="{{ current.study_hours if current else '' }}" placeholder="e.g. 2" required></div>
     <div class="field"><label for="sleep_hours">Sleep (hours)</label><input id="sleep_hours" name="sleep_hours" type="number" min="0" max="24" step=".5" value="{{ current.sleep_hours if current else '' }}" placeholder="e.g. 7.5" required></div>
