@@ -9,11 +9,12 @@
 <a class="button primary sketch-main-cta" href="{{ url_for('survey') }}">Start the survey <span>↗</span></a>
 <div class="sketch-trust"><span>✓</span> Anonymous · Student-led research · Your voice matters</div>
 </section>
+
+<section class="sketch-bottom container" id="wellbeing-tools"><div><span class="eyebrow">YOUR PERSONAL TOOLKIT</span><h2>Small tools. <em>Real-life balance.</em></h2><p>Quick, private activities to help you pause, focus, and choose one positive habit. No scores, no judgement.</p></div><div class="sketch-tool-links"><a href="{{ url_for('survey') }}">My survey <span>→</span></a><a href="{{ url_for('dashboard') }}">Insights dashboard <span>→</span></a><button type="button" onclick="document.getElementById('yw-chat-launch').click()">Ask YouthWell <span>✦</span></button></div></section>
 <section class="sketch-steps container"><div class="sketch-section-head"><div class="eyebrow">SIMPLE STEPS</div><h2>A little reflection goes a long way.</h2></div>
 <div class="sketch-step-grid">
 <a class="sketch-step" href="{{ url_for('survey') }}"><span class="sketch-step-no">01</span><span class="sketch-step-icon">✎</span><strong>Take the survey</strong><small>Share your everyday mobile habits in a few quick questions.</small><span class="sketch-link">Start now ↗</span></a>
 <a class="sketch-step" href="{{ url_for('dashboard') }}"><span class="sketch-step-no">02</span><span class="sketch-step-icon">▥</span><strong>Explore insights</strong><small>See what the collected responses tell us about digital life.</small><span class="sketch-link">View dashboard ↗</span></a>
 <a class="sketch-step" href="#wellbeing-tools"><span class="sketch-step-no">03</span><span class="sketch-step-icon">✦</span><strong>Build small habits</strong><small>Try simple, pressure-free ways to make screen time work for you.</small><span class="sketch-link">Explore tools ↗</span></a>
 </div></section>
-<section class="sketch-bottom container" id="wellbeing-tools"><div><span class="eyebrow">YOUR PERSONAL TOOLKIT</span><h2>Small tools. <em>Real-life balance.</em></h2><p>Quick, private activities to help you pause, focus, and choose one positive habit. No scores, no judgement.</p></div><div class="sketch-tool-links"><a href="{{ url_for('survey') }}">My survey <span>→</span></a><a href="{{ url_for('dashboard') }}">Insights dashboard <span>→</span></a><button type="button" onclick="document.getElementById('yw-chat-launch').click()">Ask YouthWell <span>✦</span></button></div></section>
 {% endblock %}
