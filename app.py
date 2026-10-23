@@ -76,7 +76,14 @@ def init_db():
                 id BIGSERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE,
                 password_hash TEXT NOT NULL, created_at TEXT NOT NULL
             )""")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
+            conn.execute("ALTER TABLE responses ADD COLUMN IF NOT EXISTS user_id BIGINT")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
+            try:
+            conn.execute("ALTER TABLE responses ADD COLUMN user_id INTEGER")
+        except sqlite3.OperationalError:
+            pass
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
         return
     os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
@@ -295,19 +302,81 @@ def survey():
             if age not in AGE_GROUPS or use not in PHONE_USES or effect not in EFFECTS:
                 raise ValueError("Please choose a valid option for each question.")
             with connect_db() as conn:
-                conn.execute(
-                    """INSERT INTO responses
-                    (created_at, age_group, screen_time, study_hours, sleep_hours, primary_use, perceived_effect, notes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (datetime.now().isoformat(timespec="seconds"), age, screen, study, sleep, use, effect, notes),
-                )
+                values = (session["user_id"], datetime.now().isoformat(timespec="seconds"), age, screen, study, sleep, use, effect, notes)
+                if DATABASE_URL:
+                    saved = conn.execute(
+                        """INSERT INTO responses
+                        (user_id, created_at, age_group, screen_time, study_hours, sleep_hours, primary_use, perceived_effect, notes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id""", values
+                    ).fetchone()
+                    response_id = saved["id"]
+                else:
+                    saved = conn.execute(
+                        """INSERT INTO responses
+                        (user_id, created_at, age_group, screen_time, study_hours, sleep_hours, primary_use, perceived_effect, notes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", values
+                    )
+                    response_id = saved.lastrowid
+            session["latest_response_id"] = response_id
             session.pop("_csrf_token", None)
-            flash("Thank you! Your anonymous response has been recorded. Here is the updated community dashboard.", "success")
-            return redirect(url_for("dashboard"))
+            flash("Your survey was saved. Review your personal results and next steps.", "success")
+            return redirect(url_for("survey_result"))
         except (ValueError, TypeError):
             flash("Please check your answers. Hours must be valid numbers from 0 to 24.", "error")
     return render_template("survey.html")
 
+
+
+@app.route("/survey/result")
+def survey_result():
+    if not session.get("user_id"):
+        return redirect(url_for("user_login"))
+    response_id = session.get("latest_response_id")
+    if not response_id:
+        flash("Submit a survey to view your personal results.", "error")
+        return redirect(url_for("survey"))
+    with connect_db() as conn:
+        row = conn.execute("SELECT id, created_at, age_group, screen_time, study_hours, sleep_hours, primary_use, perceived_effect, notes FROM responses WHERE id = ? AND user_id = ?", (response_id, session["user_id"])).fetchone()
+    if not row:
+        return redirect(url_for("survey"))
+    r = dict(row)
+    strengths, improvements = [], []
+    if r["study_hours"] >= 2: strengths.append("You report making time for study outside class.")
+    else: improvements.append("Try one short, focused study session and build a routine that works for you.")
+    if r["sleep_hours"] >= 7: strengths.append("You are paying attention to your sleep routine.")
+    else: improvements.append("Consider a consistent wind-down routine and protect enough time for sleep.")
+    if r["screen_time"] <= 4: strengths.append("You are checking how phone time fits with offline activities.")
+    else: improvements.append("Try identifying useful phone activities and add short screen breaks when practical.")
+    if r["primary_use"] == "Education": strengths.append("You mainly use your phone for education, a purposeful use.")
+    if r["perceived_effect"] == "Mostly positive": strengths.append("You feel your phone use is mostly helpful in daily life.")
+    elif r["perceived_effect"] == "Mixed":
+        strengths.append("You recognise both benefits and challenges.")
+        improvements.append("Keep the helpful uses and choose one distracting moment to adjust this week.")
+    elif r["perceived_effect"] == "Mostly negative": improvements.append("Choose one difficult moment, such as study time, and try a gentle boundary.")
+    else: improvements.append("Notice how you feel before and after one common phone activity, without judging yourself.")
+    return render_template("survey_result.html", response=r, strengths=strengths, improvements=improvements)
+
+
+@app.route("/my-plan")
+def my_plan():
+    if not session.get("user_id"): return redirect(url_for("user_login"))
+    response_id = session.get("latest_response_id")
+    if not response_id:
+        flash("Submit a survey first to get a personal plan.", "error")
+        return redirect(url_for("survey"))
+    with connect_db() as conn:
+        row = conn.execute("SELECT age_group, screen_time, study_hours, sleep_hours, primary_use, perceived_effect FROM responses WHERE id = ? AND user_id = ?", (response_id, session["user_id"])).fetchone()
+    if not row: return redirect(url_for("survey"))
+    r = dict(row)
+    plan = [
+        {"when":"Daily","title":"One focused study block","text":"Set aside 25 minutes for one task, silence non-essential notifications, then take a short break."},
+        {"when":"Daily","title":"Make phone time intentional","text":"Decide what you want to do before opening an app, and stop when that purpose is complete."},
+        {"when":"Evening","title":"Protect your wind-down","text":"Keep a consistent wind-down routine and aim for enough sleep for your age and needs."}
+    ]
+    if r["screen_time"] > 5: plan.append({"when":"This week","title":"Try a small screen break","text":"Choose one routine moment, such as a meal or study block, to spend away from your phone if practical."})
+    if r["perceived_effect"] == "Mostly negative": plan.append({"when":"This week","title":"Change one friction point","text":"Try a gentle boundary, such as turning off one non-essential notification."})
+    plan.append({"when":"Weekly","title":"Review without judgement","text":"Notice what worked, adjust one thing, and remember this plan is guidance, not a diagnosis."})
+    return render_template("my_plan.html", response=r, plan=plan)
 
 @app.route("/dashboard")
 def dashboard():
