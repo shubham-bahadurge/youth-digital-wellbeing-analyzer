@@ -78,18 +78,13 @@ def init_db():
             )""")
             conn.execute("ALTER TABLE responses ADD COLUMN IF NOT EXISTS user_id BIGINT")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
-            try:
-            conn.execute("ALTER TABLE responses ADD COLUMN user_id INTEGER")
-        except sqlite3.OperationalError:
-            pass
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
         return
     os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
     with connect_db() as conn:
         conn.execute("""CREATE TABLE IF NOT EXISTS responses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, age_group TEXT NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, created_at TEXT NOT NULL, age_group TEXT NOT NULL,
             screen_time REAL NOT NULL CHECK(screen_time BETWEEN 0 AND 24),
             study_hours REAL NOT NULL CHECK(study_hours BETWEEN 0 AND 24),
             sleep_hours REAL NOT NULL CHECK(sleep_hours BETWEEN 0 AND 24),
@@ -99,6 +94,11 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL
         )""")
+        try:
+            conn.execute("ALTER TABLE responses ADD COLUMN user_id INTEGER")
+        except sqlite3.OperationalError:
+            pass
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
 
