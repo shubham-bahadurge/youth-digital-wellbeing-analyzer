@@ -253,3 +253,22 @@ a,.brand,.brand-light,h1,h2,h3,h4,.yw-chat-heading strong{color:var(--ink)!impor
 .yw-chat-bubble.user{background:var(--yellow)!important;color:var(--ink)!important}
 .yw-chat-form input{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
 input,select,textarea{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
+
+
+/* Dashboard page: remove the large ivory section backgrounds so the site-wide warm cream background continues through the page. Keep individual metric and chart cards intact. */
+body:has(.dashboard-hero) main,
+body:has(.dashboard-hero) .dashboard-hero,
+body:has(.dashboard-hero) .dashboard-content,
+body:has(.dashboard-hero) main .container.dashboard-hero,
+body:has(.dashboard-hero) main .container.dashboard-content {
+  background: transparent !important;
+}
+body:has(.dashboard-hero) .dashboard-hero {
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+body:has(.dashboard-hero) .dashboard-content {
+  border: 0 !important;
+  box-shadow: none !important;
+}
