@@ -80,6 +80,15 @@ def init_db():
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
+            conn.execute("""CREATE TABLE IF NOT EXISTS daily_tracker (
+                id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL, tracker_date TEXT NOT NULL,
+                screen_time DOUBLE PRECISION NOT NULL CHECK(screen_time BETWEEN 0 AND 24),
+                study_hours DOUBLE PRECISION NOT NULL CHECK(study_hours BETWEEN 0 AND 24),
+                sleep_hours DOUBLE PRECISION NOT NULL CHECK(sleep_hours BETWEEN 0 AND 24),
+                breaks_count INTEGER NOT NULL DEFAULT 0 CHECK(breaks_count BETWEEN 0 AND 50),
+                note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL,
+                UNIQUE(user_id, tracker_date)
+            )""")
         return
     os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
     with connect_db() as conn:
@@ -101,6 +110,15 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_user_id ON responses(user_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_created_at ON responses(created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_responses_age_group ON responses(age_group)")
+        conn.execute("""CREATE TABLE IF NOT EXISTS daily_tracker (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, tracker_date TEXT NOT NULL,
+            screen_time REAL NOT NULL CHECK(screen_time BETWEEN 0 AND 24),
+            study_hours REAL NOT NULL CHECK(study_hours BETWEEN 0 AND 24),
+            sleep_hours REAL NOT NULL CHECK(sleep_hours BETWEEN 0 AND 24),
+            breaks_count INTEGER NOT NULL DEFAULT 0 CHECK(breaks_count BETWEEN 0 AND 50),
+            note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL,
+            UNIQUE(user_id, tracker_date)
+        )""")
 
 def csrf_token():
     token = session.get("_csrf_token")
@@ -377,6 +395,58 @@ def my_plan():
     if r["perceived_effect"] == "Mostly negative": plan.append({"when":"This week","title":"Change one friction point","text":"Try a gentle boundary, such as turning off one non-essential notification."})
     plan.append({"when":"Weekly","title":"Review without judgement","text":"Notice what worked, adjust one thing, and remember this plan is guidance, not a diagnosis."})
     return render_template("my_plan.html", response=r, plan=plan)
+
+@app.route("/daily-tracker", methods=["GET", "POST"])
+def daily_tracker():
+    if not session.get("user_id"):
+        flash("Please create an account or sign in to use your daily tracker.", "error")
+        return redirect(url_for("user_login"))
+    today = datetime.now().date().isoformat()
+    if request.method == "POST":
+        try:
+            tracker_date = request.form.get("tracker_date", today)
+            # Keep entries within a reasonable personal tracking window.
+            chosen = datetime.strptime(tracker_date, "%Y-%m-%d").date()
+            if (datetime.now().date() - chosen).days < 0 or (datetime.now().date() - chosen).days > 30:
+                raise ValueError("Choose a date from today or the previous 30 days.")
+            screen = safe_number(request.form.get("screen_time", ""))
+            study = safe_number(request.form.get("study_hours", ""))
+            sleep = safe_number(request.form.get("sleep_hours", ""))
+            breaks = int(request.form.get("breaks_count", "0"))
+            note = request.form.get("note", "").strip()[:240]
+            if not 0 <= breaks <= 50:
+                raise ValueError("Breaks must be between 0 and 50.")
+            with connect_db() as conn:
+                if DATABASE_URL:
+                    conn.execute("""INSERT INTO daily_tracker
+                        (user_id, tracker_date, screen_time, study_hours, sleep_hours, breaks_count, note, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT (user_id, tracker_date) DO UPDATE SET
+                        screen_time=EXCLUDED.screen_time, study_hours=EXCLUDED.study_hours,
+                        sleep_hours=EXCLUDED.sleep_hours, breaks_count=EXCLUDED.breaks_count,
+                        note=EXCLUDED.note, created_at=EXCLUDED.created_at""",
+                        (session["user_id"], tracker_date, screen, study, sleep, breaks, note, datetime.now().isoformat(timespec="seconds")))
+                else:
+                    conn.execute("""INSERT INTO daily_tracker
+                        (user_id, tracker_date, screen_time, study_hours, sleep_hours, breaks_count, note, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(user_id, tracker_date) DO UPDATE SET
+                        screen_time=excluded.screen_time, study_hours=excluded.study_hours,
+                        sleep_hours=excluded.sleep_hours, breaks_count=excluded.breaks_count,
+                        note=excluded.note, created_at=excluded.created_at""",
+                        (session["user_id"], tracker_date, screen, study, sleep, breaks, note, datetime.now().isoformat(timespec="seconds")))
+            session.pop("_csrf_token", None)
+            flash("Your daily check-in has been saved.", "success")
+            return redirect(url_for("daily_tracker"))
+        except (ValueError, TypeError):
+            flash("Check the date and enter valid values from 0 to 24 hours.", "error")
+    with connect_db() as conn:
+        entries = conn.execute("""SELECT tracker_date, screen_time, study_hours, sleep_hours, breaks_count, note
+            FROM daily_tracker WHERE user_id = ? ORDER BY tracker_date DESC LIMIT 14""", (session["user_id"],)).fetchall()
+        current = conn.execute("""SELECT tracker_date, screen_time, study_hours, sleep_hours, breaks_count, note
+            FROM daily_tracker WHERE user_id = ? AND tracker_date = ?""", (session["user_id"], today)).fetchone()
+    return render_template("daily_tracker.html", today=today, current=current, entries=entries)
+
 
 @app.route("/dashboard")
 def dashboard():
