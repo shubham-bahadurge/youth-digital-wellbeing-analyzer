@@ -253,3 +253,62 @@ a,.brand,.brand-light,h1,h2,h3,h4,.yw-chat-heading strong{color:var(--ink)!impor
 .yw-chat-bubble.user{background:var(--yellow)!important;color:var(--ink)!important}
 .yw-chat-form input{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
 input,select,textarea{background:var(--ivory)!important;color:var(--ink)!important;border-color:var(--ink)!important}
+
+
+/* YouthWell homepage: vertical reflection steps with no section backdrop */
+.sketch-steps.container {
+  display: block !important;
+  width: min(900px, calc(100% - 36px)) !important;
+  max-width: 900px !important;
+  margin: 34px auto 56px !important;
+  padding: 0 0 24px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.sketch-steps .sketch-section-head {
+  text-align: left !important;
+  margin: 0 0 20px !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.sketch-steps .sketch-step-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+.sketch-steps .sketch-step {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  min-height: 0 !important;
+  padding: 20px 58px 20px 76px !important;
+  background: transparent !important;
+  border: 1px solid var(--ink, #291638) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.sketch-steps .sketch-step:hover {
+  background: rgba(255,255,255,.22) !important;
+  box-shadow: none !important;
+  transform: translateX(3px) !important;
+}
+.sketch-steps .sketch-step-icon {
+  position: absolute !important;
+  left: 18px !important;
+  top: 18px !important;
+  margin: 0 !important;
+}
+.sketch-steps .sketch-step-no { position: absolute !important; right: 18px !important; top: 18px !important; }
+.sketch-steps .sketch-step strong { padding: 0 !important; margin: 0 0 5px !important; }
+.sketch-steps .sketch-step small { display: block !important; margin: 0 !important; }
+.sketch-steps .sketch-link { display: block !important; padding-top: 10px !important; }
+@media (max-width: 600px) {
+  .sketch-steps.container { width: calc(100% - 28px) !important; margin-top: 24px !important; }
+  .sketch-steps .sketch-step { padding: 18px 44px 18px 64px !important; }
+  .sketch-steps .sketch-step-icon { left: 14px !important; top: 16px !important; }
+  .sketch-steps .sketch-step-no { right: 14px !important; top: 14px !important; }
+}
