@@ -3,16 +3,18 @@
 <body><nav class="nav sketch-nav"><button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><a class="brand sketch-brand" href="{{ url_for('home') }}"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></a><div class="nav-links" id="primary-nav">
 <a href="{{ url_for('home') }}">Home</a>
 {% if session.get('user_id') %}
+<a href="{{ url_for('survey_result') }}">My survey</a>
+<a href="{{ url_for('my_plan') }}">Plan</a>
+<a href="{{ url_for('daily_tracker') }}">Daily tracker</a>
 <a href="{{ url_for('account') }}">My account</a>
-<a href="{{ url_for('survey') }}">Take survey</a>
-<a href="{{ url_for('survey_result') }}">My results</a>
-<a href="{{ url_for('my_plan') }}">My plan</a>
 {% else %}
-<a href="{{ url_for('survey') }}">Take survey</a>
+<a href="{{ url_for('survey') }}">My survey</a>
+<a href="{{ url_for('my_plan') }}">Plan</a>
+<a href="{{ url_for('daily_tracker') }}">Daily tracker</a>
 <a href="{{ url_for('register') }}">Create account</a>
 <a href="{{ url_for('user_login') }}">Sign in</a>
 {% endif %}
-<a href="{{ url_for('dashboard') }}">Insights</a><a href="{{ url_for('home') }}#wellbeing-tools">Tools</a>
+<a href="{{ url_for('dashboard') }}">Insights</a>
 </div>
 <a class="nav-cta" href="{{ url_for('account') if session.get('user_id') else url_for('user_login') }}">{{ 'My account' if session.get('user_id') else 'Sign in / Login' }}</a></nav><script>document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('menu-toggle'),n=document.getElementById('primary-nav');if(b&&n)b.addEventListener('click',()=>{const open=n.classList.toggle('nav-open');b.setAttribute('aria-expanded',String(open))})});</script><main>{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main><footer class="footer"><div class="brand"><span class="brand-mark">Y</span><span>Youth<span class="brand-light">Well</span></span></div><p>Community Engagement Project · Impact of Mobile Phones on Youth</p><p class="footer-note">Anonymous educational survey. Please do not share identifying or sensitive information.</p></footer>
 <button class="yw-chat-launch" id="yw-chat-launch" type="button" aria-label="Open YouthWell help chat" aria-expanded="false"><span class="yw-chat-spark">✦</span><span>Ask YouthWell</span></button>
