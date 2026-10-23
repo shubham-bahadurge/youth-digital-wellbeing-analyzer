@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Daily tracker · YouthWell{% endblock %}
+{% block content %}
+<section class="page-hero container">
+  <div class="eyebrow">YOUR DAILY CHECK-IN</div>
+  <h1>Small check-ins, <span class="gradient-text">steady progress.</span></h1>
+  <p>Track screen time, study, sleep and screen breaks. Your entries are private to your account and can be updated for each date.</p>
+</section>
+<section class="container tracker-layout">
+  <form class="survey-form tracker-form" method="post" action="{{ url_for('daily_tracker') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="form-heading"><span class="step-pill">DAILY TRACKER</span><h2>{{ 'Update your check-in' if current else 'Log your day' }}</h2><p>Use approximate hours. There are no grades or perfect scores.</p></div>
+    <div class="field"><label for="tracker_date">Date</label><input id="tracker_date" name="tracker_date" type="date" value="{{ current.tracker_date if current else today }}" max="{{ today }}" min="{{ (today|string) }}" required></div>
+    <div class="field"><label for="screen_time">Screen time (hours)</label><input id="screen_time" name="screen_time" type="number" min="0" max="24" step=".5" value="{{ current.screen_time if current else '' }}" placeholder="e.g. 4.5" required></div>
+    <div class="field"><label for="study_hours">Study outside class (hours)</label><input id="study_hours" name="study_hours" type="number" min="0" max="24" step=".5" value="{{ current.study_hours if current else '' }}" placeholder="e.g. 2" required></div>
+    <div class="field"><label for="sleep_hours">Sleep (hours)</label><input id="sleep_hours" name="sleep_hours" type="number" min="0" max="24" step=".5" value="{{ current.sleep_hours if current else '' }}" placeholder="e.g. 7.5" required></div>
+    <div class="field"><label for="breaks_count">Screen breaks taken</label><input id="breaks_count" name="breaks_count" type="number" min="0" max="50" step="1" value="{{ current.breaks_count if current else 0 }}" required><small class="field-help">Count short pauses away from your screen.</small></div>
+    <div class="field"><label for="note">Optional reflection</label><textarea id="note" name="note" rows="3" maxlength="240" placeholder="What helped you stay balanced today?">{{ current.note if current else '' }}</textarea><small class="field-help">Avoid names or sensitive personal details.</small></div>
+    <button class="button primary submit-button" type="submit">Save daily check-in</button>
+  </form>
+  <aside class="tracker-side">
+    <div class="aside-icon">✳</div><h2>Your progress, not perfection</h2>
+    <p>Use the tracker to notice patterns over time, not to judge yourself. One unusual day is normal.</p>
+    <div class="tracker-guideline"><b>Try this</b><span>Choose one small, realistic habit to focus on tomorrow.</span></div>
+    <div class="tracker-guideline"><b>Keep it private</b><span>Only your signed-in account can view your saved check-ins.</span></div>
+    <a class="button secondary" href="{{ url_for('my_plan') }}">View my plan</a>
+  </aside>
+</section>
+<section class="container tracker-history">
+  <div class="section-heading"><div><div class="eyebrow">RECENT ENTRIES</div><h2>Your last 14 check-ins</h2></div></div>
+  {% if entries %}
+  <div class="tracker-entry-list">
+    {% for entry in entries %}
+    <article class="tracker-entry">
+      <div class="tracker-entry-date"><b>{{ entry.tracker_date }}</b><span>{{ entry.breaks_count }} screen breaks</span></div>
+      <div class="tracker-entry-metrics"><span><b>{{ entry.screen_time }}</b><small>screen hrs</small></span><span><b>{{ entry.study_hours }}</b><small>study hrs</small></span><span><b>{{ entry.sleep_hours }}</b><small>sleep hrs</small></span></div>
+      {% if entry.note %}<p>{{ entry.note }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="tracker-empty"><h3>Your tracker starts here</h3><p>Save your first daily check-in and your recent entries will appear in this section.</p></div>
+  {% endif %}
+</section>
+{% endblock %}
