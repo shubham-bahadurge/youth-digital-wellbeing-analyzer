@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Your personal plan · YouthWell{% endblock %}
+{% block content %}
+<section class="page-hero container"><div class="eyebrow">YOUR PERSONAL TOOLKIT</div><h1>Small steps, <span class="gradient-text">real-life balance.</span></h1><p>Your plan uses your latest survey answers. Try one change at a time and adjust it to suit your routine.</p></section>
+<section class="container dashboard-content">
+  <article class="chart-card" style="padding:clamp(22px,4vw,40px);margin-bottom:24px">
+    <h2>Your starting point</h2>
+    <p>Screen time: <b>{{ response.screen_time }} hours/day</b> · Study: <b>{{ response.study_hours }} hours/day</b> · Sleep: <b>{{ response.sleep_hours }} hours/night</b></p>
+    <p>Main phone use: <b>{{ response.primary_use }}</b> · Perceived impact: <b>{{ response.perceived_effect }}</b></p>
+  </article>
+  <div class="insight-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
+    {% for item in plan %}<article class="insight-card"><span class="step-pill">{{ item.when }}</span><h2>{{ item.title }}</h2><p>{{ item.text }}</p></article>{% endfor %}
+  </div>
+  <div class="dash-actions" style="margin-top:28px"><a class="button primary" href="{{ url_for('survey_result') }}">Back to my results</a><a class="button secondary" href="{{ url_for('survey') }}">Retake survey</a></div>
+  <p class="form-footnote">This plan is a gentle guide, not medical advice. Small, realistic changes are enough to start.</p>
+</section>
+{% endblock %}
